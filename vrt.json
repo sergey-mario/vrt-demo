@@ -1,0 +1,7 @@
+{
+  "apiUrl": "http://localhost:4200",
+  "apiKey": "Y38C5XGA4E42WGQ3FYC3HG61DFD9",
+  "project": "VRTDemo",
+  "branchName": "main",
+  "enableSoftAssert": true
+}
