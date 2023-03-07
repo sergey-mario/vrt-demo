@@ -1,41 +1,30 @@
-import {chromium, expect, test} from "@playwright/test";
-import {Config, PlaywrightVisualRegressionTracker} from "@visual-regression-tracker/agent-playwright";
+import {chromium, expect, Browser} from "@playwright/test";
+import { PlaywrightVisualRegressionTracker} from "@visual-regression-tracker/agent-playwright";
+import { test as base } from "@playwright/test";
 
-const config: Config = {
-  // URL where backend is running
-  // Required
-  apiUrl: "http://localhost:4200",
-
-  // Project name or ID
-  // Required
-  project: "RnD Demo",
-
-  // User apiKey
-  // Required
-  apiKey: "Y38C5XGA4E42WGQ3FYC3HG61DFD9",
-
-  // Current git branch
-  // Required
-  branchName: "main",
-
-  // Log errors instead of throwing exceptions
-  // Optional - default false
-  enableSoftAssert: true,
+type TestFixtures = {
+  vrt: PlaywrightVisualRegressionTracker;
 };
 
-const browserName = chromium.name()
-const vrt = new PlaywrightVisualRegressionTracker(browserName, config)
+const test = base.extend<{}, TestFixtures>({
+  vrt: [
+    async ({ browserName }, use) => {
+      await use(new PlaywrightVisualRegressionTracker(browserName));
+    },
+    { scope: "worker" },
+  ],
+});
 
-test.beforeAll(async () => {
+
+test.beforeAll(async ({ vrt }) => {
   await vrt.start();
 });
 
-test.afterAll(async () => {
-  const stop = await vrt.stop();
-  console.log('stop', stop)
+test.afterAll(async ({ vrt }) => {
+  await vrt.stop();
 });
 
-test("Google page", async ({ page }) => {
+test("Google page", async ({ page, vrt }) => {
   await page.goto("https://google.com/");
   await vrt.trackPage(page, "Google page");
 });
